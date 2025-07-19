@@ -1,0 +1,37 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: payment-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: localhost
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    ua.dymohlo.payment_service: DEBUG
+
+jwt:
+  secret-key: ${secretKey}
+  expiration: 86400000
+
+liqpay:
+  public-key: ${LIQPAY_PUBLIC_KEY}
+  private-key: ${LIQPAY_PRIVATE_KEY}
+  server-url: https://www.liqpay.ua/api/
+  result-url: http://localhost:8086/api/payments/liqpay/result
+  callback-url: http://localhost:8086/api/payments/liqpay/callback

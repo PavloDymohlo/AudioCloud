@@ -1,0 +1,64 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: notification-service
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: notification-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enabled: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: localhost
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    ua.dymohlo.notification_service: DEBUG
+
+notification:
+  email:
+    company-name: AudioCloud
+    from-name: AudioCloud Team
+    subject-template: "Payment Report - %s"
+    body-template: "Dear Customer,\n\nPlease find attached your payment report.\n\nTransaction ID: %s\nStatus: %s\n\nBest regards,\n%s"
+  pdf:
+    title: PAYMENT REPORT
+    title-font-size: 20
+    details-font-size: 10
+    transaction-label: "Transaction ID: "
+    status-label: "Status: "
+    message-label: "Message: "
+    date-label: "Date: "
+    details-label: "Payment Details:"
+  date:
+    format: dd/MM/yyyy HH:mm

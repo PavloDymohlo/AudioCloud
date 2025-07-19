@@ -1,0 +1,12 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: ConfigServer
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: "C:/Users/DELL/OneDrive/Рабочий стол/Java lessons/AudioCloud"
+  profiles:
+    active: native
