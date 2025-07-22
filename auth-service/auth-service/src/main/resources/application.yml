@@ -37,3 +37,19 @@ logging:
 jwt:
   secret-key: ${secretKey}
   expiration: 86400000
+
+subscription:
+  service-name: subscription-service
+  scheme: http
+  default-plan: "TRIAL"
+  api:
+    base-path: "/api/v1"
+    subscriptions-endpoint: "/subscriptions"
+
+payment:
+  service-name: payment-service
+  scheme: http
+  api:
+    base-path: "/api/v1"
+    process-endpoint: "/payment"
+  default-provider: "liqpay"

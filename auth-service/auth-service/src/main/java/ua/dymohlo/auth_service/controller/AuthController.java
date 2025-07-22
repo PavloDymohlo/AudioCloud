@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ua.dymohlo.auth_service.dto.request.AuthRequest;
+import ua.dymohlo.auth_service.dto.request.LoginInRequest;
+import ua.dymohlo.auth_service.dto.request.RegisterRequest;
 import ua.dymohlo.auth_service.entiti.User;
 import ua.dymohlo.auth_service.security.JwtTokenService;
 import ua.dymohlo.auth_service.service.AuthService;
@@ -21,14 +22,13 @@ public class AuthController {
     private final JwtTokenService jwtTokenService;
 
     @PostMapping("/register")
-    public String registerUser(@Valid @RequestBody AuthRequest request) {
-        // I must to send bankData in payment-service
+    public String registerUser(@Valid @RequestBody RegisterRequest request) {
         User user = authService.register(request);
         return jwtTokenService.generateToken(user);
     }
 
     @PostMapping("/login")
-    public String getToken(@Valid @RequestBody AuthRequest request) {
+    public String getToken(@Valid @RequestBody LoginInRequest request) {
         User user = authService.loginIn(request);
         return jwtTokenService.generateToken(user);
     }

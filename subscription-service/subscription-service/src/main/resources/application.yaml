@@ -20,12 +20,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  cloud:
-    config:
-      enabled: false
-      uri: http://localhost:8888
-      name: subscription-service
-      profile: default
+#  cloud:
+#    config:
+#      enabled: false
+#      uri: http://localhost:8888
+#      name: subscription-service
+#      profile: default
 
 eureka:
   client:

@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ua.dymohlo.payment_service.client.LiqPayClient;
+import ua.dymohlo.payment_service.dto.request.NotificationRequest;
 import ua.dymohlo.payment_service.dto.request.PaymentRequest;
 import ua.dymohlo.payment_service.dto.response.PaymentResponse;
+import ua.dymohlo.payment_service.service.PaymentNotificationProducer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class LiqPayStrategy implements PaymentStrategy {
 
     private final LiqPayClient liqPayClient;
+    private final PaymentNotificationProducer paymentNotificationProducer;
 
     @Value("${liqpay.result-url}")
     private String resultUrl;
@@ -53,12 +56,24 @@ public class LiqPayStrategy implements PaymentStrategy {
             boolean isSuccess = errorCode == null || errorCode.trim().isEmpty();
 
             if (isSuccess) {
+                NotificationRequest notification = NotificationRequest.builder()
+                        .success(true)
+                        .transactionId(transactionId)
+                        .message("Payment successful")
+                        .paymentData(liqPayResponse.toString())
+                        .recipient(request.getUserEmail())
+                        .notificationType("email")
+                        .build();
+
+                paymentNotificationProducer.sendPaymentNotification(notification);
+
                 return PaymentResponse.builder()
                         .success(true)
                         .transactionId(transactionId)
                         .message("Payment successful")
                         .paymentData(liqPayResponse.toString())
                         .build();
+
             } else {
                 return PaymentResponse.builder()
                         .success(false)

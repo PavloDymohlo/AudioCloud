@@ -11,7 +11,7 @@ import ua.dymohlo.payment_service.service.PaymentService;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/payment")
+@RequestMapping("/api/v1/payment")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -21,7 +21,7 @@ public class PaymentController {
             @PathVariable String paymentType,
             @RequestBody PaymentRequest request) {
 
-        log.info("Processing payment request: type={}, amount={}", paymentType, request.getAmount());
+        log.info("Processing payment request: type={}, generally={}", paymentType, request);
 
         PaymentResponse response = paymentService.processPayment(request, paymentType);
 

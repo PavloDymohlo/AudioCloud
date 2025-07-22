@@ -23,6 +23,12 @@ spring:
           uri: lb://discovery-service
           predicates:
             - Path=/eureka/**
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - StripPrefix=0
 
 eureka:
   client:
@@ -41,3 +47,10 @@ management:
   endpoint:
     health:
       show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.server: DEBUG
+    reactor.netty: DEBUG
+    org.springframework.security: DEBUG
