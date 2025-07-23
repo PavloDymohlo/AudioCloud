@@ -44,7 +44,7 @@ public class PaymentClient {
             SubscriptionResponse subscription = getSubscriptionData();
             PaymentRequest paymentRequest = buildPaymentRequest(request, subscription);
             String paymentResponse = sendPaymentRequest(paymentRequest);
-            return parsePaymentResult(paymentResponse);
+            return parsePaymentResult(paymentResponse, subscription.getSubscriptionName());
 
         } catch (Exception e) {
             log.error("Error processing payment for user: {}", request.getUserEmail(), e);
@@ -104,7 +104,7 @@ public class PaymentClient {
                 scheme, serviceName, basePath, processEndpoint, defaultProvider);
     }
 
-    private PaymentResultResponse parsePaymentResult(String paymentResponse) {
+    private PaymentResultResponse parsePaymentResult(String paymentResponse, String subscriptionName) {
         try {
             JsonNode responseNode = objectMapper.readTree(paymentResponse);
             boolean success = responseNode.path("success").asBoolean(false);
@@ -120,6 +120,7 @@ public class PaymentClient {
             return PaymentResultResponse.builder()
                     .success(success)
                     .message(message)
+                    .subscriptionName(subscriptionName)
                     .build();
 
         } catch (Exception e) {

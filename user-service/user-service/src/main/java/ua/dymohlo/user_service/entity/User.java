@@ -25,4 +25,7 @@ public class User {
     private String userEmail;
     @Column(name = "user_role")
     private String userRole;
+    private String bankCardNumber;
+    private String bankCardCvv;
+    private String bankCardExpired;
 }

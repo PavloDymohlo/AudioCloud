@@ -29,6 +29,17 @@ spring:
             - Path=/api/v1/auth/**
           filters:
             - StripPrefix=0
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - StripPrefix=0
+
+user-service:
+  name: user-service
+  api:
+    base-path: /api/v1/users
 
 eureka:
   client:
@@ -54,3 +65,4 @@ logging:
     org.springframework.web.server: DEBUG
     reactor.netty: DEBUG
     org.springframework.security: DEBUG
+    ua.dymohlo.api_gateway.filter: DEBUG

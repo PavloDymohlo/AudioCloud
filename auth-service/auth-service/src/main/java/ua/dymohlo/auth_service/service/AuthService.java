@@ -8,6 +8,7 @@ import ua.dymohlo.auth_service.client.PaymentClient;
 import ua.dymohlo.auth_service.dto.request.LoginInRequest;
 import ua.dymohlo.auth_service.dto.request.RegisterRequest;
 import ua.dymohlo.auth_service.dto.response.PaymentResultResponse;
+import ua.dymohlo.auth_service.dto.response.RegisteredUserInfoResponse;
 import ua.dymohlo.auth_service.entiti.User;
 import ua.dymohlo.auth_service.exception.InvalidCredentialsException;
 import ua.dymohlo.auth_service.exception.PaymentFailedException;
@@ -26,7 +27,7 @@ public class AuthService {
     private final PaymentClient paymentClient;
     private static final UserRole DEFAULT_USER_ROLE = UserRole.CLIENT;
 
-    public User register(RegisterRequest request) {
+    public RegisteredUserInfoResponse register(RegisterRequest request) {
         userRepository.findByUserEmail(request.getUserEmail())
                 .ifPresent(user -> {
                     throw new UserAlreadyExistsException("This email already exists");
@@ -39,6 +40,15 @@ public class AuthService {
         }
         log.info("Payment successful for user: {}", request.getUserEmail());
 
+        User savedUser = createUser(request);
+
+        return RegisteredUserInfoResponse.builder()
+                .user(savedUser)
+                .subscriptionName(paymentResult.getSubscriptionName())
+                .build();
+    }
+
+    private User createUser(RegisterRequest request) {
         User user = User.builder()
                 .userEmail(request.getUserEmail())
                 .userPassword(passwordEncoder.encode(request.getPassword()))

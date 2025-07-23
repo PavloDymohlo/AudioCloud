@@ -9,13 +9,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ua.dymohlo.user_service.dto.request.CreateUserRequest;
 import ua.dymohlo.user_service.dto.request.UserProfileDataRequest;
 import ua.dymohlo.user_service.entity.User;
 import ua.dymohlo.user_service.models.AutoSubscriptionStatus;
 import ua.dymohlo.user_service.security.util.JwtUtil;
 import ua.dymohlo.user_service.service.UserService;
-
-import java.util.List;
 
 @RestController
 @Slf4j
@@ -25,14 +24,29 @@ public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
-    @GetMapping("/profile")
-    public User getUser(@RequestHeader("Authorization") String authHeader) {
-        UserProfileDataRequest request = UserProfileDataRequest.builder()
+    @PostMapping()
+    public User createUser(@RequestHeader("Authorization") String authHeader,
+                           @RequestBody CreateUserRequest request) {
+        CreateUserRequest createRequest = CreateUserRequest.builder()
                 .userId(jwtUtil.getUserIdFromToken(authHeader))
                 .userEmail(jwtUtil.getUsernameFromToken(authHeader))
-                .userRole(jwtUtil.getRoleFromToken(authHeader)).build();
-        return userService.checkUserUUID(request);
+                .userRole(jwtUtil.getRoleFromToken(authHeader))
+                .subscriptionName(request.getSubscriptionName())
+                .bankCardNumber(request.getBankCardNumber())
+                .bankCardNumberCVV(request.getBankCardNumberCVV())
+                .bankCardNumberExpired(request.getBankCardNumberExpired()).build();
+        return userService.createNewUser(createRequest);
     }
+// I have to change logic here
+
+//    @GetMapping("/profile")
+//    public User getUser(@RequestHeader("Authorization") String authHeader) {
+//        UserProfileDataRequest request = UserProfileDataRequest.builder()
+//                .userId(jwtUtil.getUserIdFromToken(authHeader))
+//                .userEmail(jwtUtil.getUsernameFromToken(authHeader))
+//                .userRole(jwtUtil.getRoleFromToken(authHeader)).build();
+//        return userService.checkUserUUID(request);
+//    }
 
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.name")
     @GetMapping("/emails/{email}")

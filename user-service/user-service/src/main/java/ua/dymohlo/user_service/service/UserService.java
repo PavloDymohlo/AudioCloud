@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ua.dymohlo.user_service.dto.request.CreateUserRequest;
 import ua.dymohlo.user_service.dto.request.UserProfileDataRequest;
 import ua.dymohlo.user_service.entity.User;
 import ua.dymohlo.user_service.exception.UserNotFoundException;
@@ -20,18 +21,23 @@ public class UserService {
     private final UserRepository userRepository;
     private final AutoSubscriptionStatus DEFAULT_AUTO_SUBSCRIPTION_STATUS = AutoSubscriptionStatus.YES;
 
-    public User checkUserUUID(UserProfileDataRequest request) {
-        return userRepository.findById(request.getUserId())
-                .orElseGet(() -> createNewUser(request));
-    }
+    // I have to change logic here
 
-    private User createNewUser(UserProfileDataRequest request) {
+//    public User checkUserUUID(UserProfileDataRequest request) {
+//        return userRepository.findById(request.getUserId())
+//                .orElseGet(() -> createNewUser(request));
+//    }
+
+    public User createNewUser(CreateUserRequest request) {
         User newUser = User.builder()
                 .id(request.getUserId())
                 .autoSubscription(DEFAULT_AUTO_SUBSCRIPTION_STATUS)
-                .subscription("Mock")
+                .subscription(request.getSubscriptionName())
                 .userEmail(request.getUserEmail())
                 .userRole(request.getUserRole())
+                .bankCardNumber(request.getBankCardNumber())
+                .bankCardCvv(request.getBankCardNumberCVV())
+                .bankCardExpired(request.getBankCardNumberExpired())
                 .subscriptionExpiresAt(LocalDateTime.now()).build();
         return userRepository.save(newUser);
     }
