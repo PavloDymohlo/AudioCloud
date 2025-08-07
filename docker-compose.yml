@@ -52,6 +52,21 @@ services:
     networks:
       - audiocloud-network
 
+  redis:
+    image: redis:alpine
+    container_name: audiocloud-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - audiocloud-network
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
 networks:
   audiocloud-network:
     driver: bridge
+
+volumes:
+  redis_data:

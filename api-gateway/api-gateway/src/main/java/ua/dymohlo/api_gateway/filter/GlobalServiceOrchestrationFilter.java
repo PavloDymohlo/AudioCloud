@@ -24,7 +24,10 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 
-@Component
+/**
+ This clas I maybe will use for testing with real users*/
+
+//@Component
 @Slf4j
 public class GlobalServiceOrchestrationFilter implements GlobalFilter, Ordered {
 

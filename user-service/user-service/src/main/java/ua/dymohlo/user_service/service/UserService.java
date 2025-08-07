@@ -21,12 +21,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final AutoSubscriptionStatus DEFAULT_AUTO_SUBSCRIPTION_STATUS = AutoSubscriptionStatus.YES;
 
-    // I have to change logic here
-
-//    public User checkUserUUID(UserProfileDataRequest request) {
-//        return userRepository.findById(request.getUserId())
-//                .orElseGet(() -> createNewUser(request));
-//    }
+    public User getUserProfile(UserProfileDataRequest request) {
+        return userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("Data for this user don't found!"));
+    }
 
     public User createNewUser(CreateUserRequest request) {
         User newUser = User.builder()

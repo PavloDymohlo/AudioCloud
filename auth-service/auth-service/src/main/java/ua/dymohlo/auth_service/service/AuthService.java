@@ -62,6 +62,10 @@ public class AuthService {
     public User loginIn(LoginInRequest request) {
         return userRepository.findByUserEmail(request.getUserEmail())
                 .filter(user -> passwordEncoder.matches(request.getPassword(), user.getUserPassword()))
+                .map(user -> {
+                    user.setUserLastLogin(LocalDateTime.now());
+                    return userRepository.save(user);
+                })
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
     }
 }

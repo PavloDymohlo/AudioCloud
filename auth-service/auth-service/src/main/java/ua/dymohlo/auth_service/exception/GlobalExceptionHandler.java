@@ -43,6 +43,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handlePaymentFailedException(PaymentFailedException e){
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ResponseEntity<String> handleInvalidCredentialsException(InvalidCredentialsException e){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

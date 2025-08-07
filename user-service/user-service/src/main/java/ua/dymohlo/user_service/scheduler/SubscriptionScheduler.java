@@ -11,6 +11,7 @@ import ua.dymohlo.user_service.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -23,14 +24,17 @@ public class SubscriptionScheduler {
     private static final List<String> EXCLUDED_SUBSCRIPTIONS = new ArrayList<>(List.of("FREE"));
 
 
-    @Scheduled(fixedRate = 6000)
+    @Scheduled(fixedRate = 60000)
     public void checkSubscriptionExpiration() {
         List<User> expiredUsers = userRepository.findExpiredUsers(
                 LocalDateTime.now(),
                 EXCLUDED_ROLES,
                 EXCLUDED_SUBSCRIPTIONS
         );
-
+        log.info("Expired users emails: {}",
+                expiredUsers.stream()
+                        .map(User::getUserEmail)
+                        .collect(Collectors.toList()));
         userExpiredSubscriptionHandler.checkUserAutoRenewStatus(expiredUsers);
     }
 }
