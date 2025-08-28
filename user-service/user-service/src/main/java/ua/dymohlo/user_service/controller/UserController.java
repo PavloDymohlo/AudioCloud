@@ -110,9 +110,9 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.name")
-    @PutMapping("/emails/{email}/subscription")
+    @PutMapping("/emails/{email}/subscription/{subscription}")
     public User updateUserSubscription(@PathVariable String email,
-                                       @RequestBody String subscription) {
+                                       @PathVariable String subscription) {
         return userService.updateUserSubscription(email, subscription);
     }
 

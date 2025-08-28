@@ -64,6 +64,19 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
 
+  kafka-topic-creator:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: >
+      bash -c "
+        kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 --topic user-subscriptions &&
+        echo 'Topic user-subscriptions created successfully'
+      "
+    networks:
+      - audiocloud-network
+
 networks:
   audiocloud-network:
     driver: bridge

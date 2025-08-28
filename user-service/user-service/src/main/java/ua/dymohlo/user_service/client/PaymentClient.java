@@ -12,6 +12,8 @@ import ua.dymohlo.user_service.dto.response.PaymentResultResponse;
 import ua.dymohlo.user_service.dto.response.SubscriptionResponse;
 import ua.dymohlo.user_service.entity.User;
 
+import static ua.dymohlo.user_service.constants.SubscriptionConstants.DEFAULT_SUBSCRIPTION;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -41,10 +43,13 @@ public class PaymentClient {
     private String scheme;
 
     public boolean paymentProcess(User user, SubscriptionResponse subscription) {
+        if (subscription.getSubscriptionName().equals(DEFAULT_SUBSCRIPTION)) {
+            return true;
+        }
         try {
             PaymentRequest paymentRequest = buildPaymentRequest(user, subscription);
             String paymentResponse = sendPaymentRequest(paymentRequest);
-            log.info("response"+paymentResponse);
+            log.info("response: " + paymentResponse);
             return parsePaymentResult(paymentResponse, subscription.getSubscriptionName()).isSuccess();
 
         } catch (Exception e) {
@@ -123,12 +128,6 @@ public class PaymentClient {
 
     public static class PaymentProcessingException extends RuntimeException {
         public PaymentProcessingException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-    public static class SubscriptionParsingException extends RuntimeException {
-        public SubscriptionParsingException(String message, Throwable cause) {
             super(message, cause);
         }
     }

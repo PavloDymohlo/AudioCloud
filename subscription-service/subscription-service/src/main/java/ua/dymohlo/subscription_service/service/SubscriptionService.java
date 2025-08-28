@@ -46,6 +46,7 @@ public class SubscriptionService {
     }
 
     public Subscription updateSubscriptionData(UpdateSubscriptionDataRequest request) {
+        log.info("Searching for subscription: '{}'", request);
         return subscriptionRepository.findBySubscriptionNameIgnoreCase(request.getSubscriptionCurrentName())
                 .map(existingSubscription -> {
                     existingSubscription.setSubscriptionName(request.getSubscriptionNewName());

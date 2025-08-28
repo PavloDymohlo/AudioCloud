@@ -13,13 +13,4 @@ public class MusicFileResponseFactory {
                 .musicFileName(musicFile.getMusicFileName())
                 .subscriptionType(musicFile.getSubscriptionType()).build();
     }
-
-    public List<MusicFileDataResponse> createMusicFileDataResponseList(List<MusicFile> musicFiles) {
-        return musicFiles.stream()
-                .map(musicFile -> new MusicFileDataResponse(
-                        musicFile.getMusicFileName(),
-                        musicFile.getSubscriptionType()
-                ))
-                .toList();
-    }
 }

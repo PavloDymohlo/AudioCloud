@@ -4,13 +4,11 @@ server:
 spring:
   application:
     name: user-service
-
   datasource:
     url: jdbc:postgresql://localhost:5432/AudioCloud
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,6 +17,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 eureka:
   client:
@@ -32,7 +35,7 @@ eureka:
 logging:
   level:
     org.springframework.security: DEBUG
-    ua.dymohlo.auth_service: DEBUG
+    ua.dymohlo.user_service: DEBUG
 
 jwt:
   secret: ${secretKey}
@@ -52,3 +55,8 @@ payment:
     base-path: "/api/v1"
     process-endpoint: "/payment"
   default-provider: "liqpay"
+
+kafka:
+  topics:
+    user-subscriptions: user-subscriptions
+    user-deleted: user-deleted

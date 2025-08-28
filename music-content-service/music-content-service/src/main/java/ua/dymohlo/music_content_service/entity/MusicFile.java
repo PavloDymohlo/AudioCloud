@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "music_files", schema ="music_content_service")
+@Table(name = "music_files", schema = "music_content_service")
 public class MusicFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

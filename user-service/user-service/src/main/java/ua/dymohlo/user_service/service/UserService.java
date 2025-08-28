@@ -5,25 +5,40 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ua.dymohlo.user_service.client.PaymentClient;
+import ua.dymohlo.user_service.client.SubscriptionClient;
 import ua.dymohlo.user_service.dto.request.CreateUserRequest;
 import ua.dymohlo.user_service.dto.request.UserProfileDataRequest;
+import ua.dymohlo.user_service.dto.response.SubscriptionResponse;
 import ua.dymohlo.user_service.entity.User;
+import ua.dymohlo.user_service.exception.PaymentFailedException;
 import ua.dymohlo.user_service.exception.UserNotFoundException;
 import ua.dymohlo.user_service.models.AutoSubscriptionStatus;
 import ua.dymohlo.user_service.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserSubscriptionPublisher subscriptionPublisher;
+    private final SubscriptionClient subscriptionClient;
+    private final PaymentClient paymentClient;
+    private final UserDeletedPublisher userDeletedPublisher;
     private final AutoSubscriptionStatus DEFAULT_AUTO_SUBSCRIPTION_STATUS = AutoSubscriptionStatus.YES;
 
     public User getUserProfile(UserProfileDataRequest request) {
-        return userRepository.findById(request.getUserId())
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("Data for this user don't found!"));
+
+        subscriptionPublisher.publishUserSubscriptionEvent(user.getId(), user.getSubscription());
+        log.info("User {} accessed profile - sent subscription data to Kafka: {}",
+                user.getUserEmail(), user.getSubscription());
+
+        return user;
     }
 
     public User createNewUser(CreateUserRequest request) {
@@ -36,8 +51,17 @@ public class UserService {
                 .bankCardNumber(request.getBankCardNumber())
                 .bankCardCvv(request.getBankCardNumberCVV())
                 .bankCardExpired(request.getBankCardNumberExpired())
-                .subscriptionExpiresAt(LocalDateTime.now()).build();
-        return userRepository.save(newUser);
+                .subscriptionExpiresAt(LocalDateTime.now())
+                .build();
+
+        User savedUser = userRepository.save(newUser);
+
+        subscriptionPublisher.publishUserSubscriptionEvent(
+                savedUser.getId(),
+                savedUser.getSubscription()
+        );
+
+        return savedUser;
     }
 
     public User findUserByEmail(String userEmail) {
@@ -63,11 +87,34 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User with this email not found"));
     }
 
+
     public User updateUserSubscription(String email, String subscription) {
         return userRepository.findUserByUserEmail(email)
                 .map(user -> {
+                    List<SubscriptionResponse> subscriptions = subscriptionClient.getAllSubscriptions();
+                    SubscriptionResponse newSubscription = subscriptions.stream()
+                            .filter(s -> s.getSubscriptionName().equals(subscription))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("Subscription not found"));
+
+                    boolean paymentSuccess = paymentClient.paymentProcess(user, newSubscription);
+
+                    if (!paymentSuccess) {
+                        throw new PaymentFailedException("Payment failed");
+                    }
+
                     user.setSubscription(subscription);
-                    return userRepository.save(user);
+                    user.setSubscriptionExpiresAt(
+                            LocalDateTime.now().plusMinutes(newSubscription.getSubscriptionDurationTime())
+                    );
+                    User savedUser = userRepository.save(user);
+
+                    subscriptionPublisher.publishUserSubscriptionEvent(
+                            savedUser.getId(),
+                            savedUser.getSubscription()
+                    );
+
+                    return savedUser;
                 })
                 .orElseThrow(() -> new UserNotFoundException("User with this email not found"));
     }
@@ -76,6 +123,7 @@ public class UserService {
         User user = userRepository.findUserByUserEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with this email not found"));
         userRepository.delete(user);
-    }
 
+        userDeletedPublisher.publishUserDeletedEvent(email);
+    }
 }

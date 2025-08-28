@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -18,12 +19,28 @@ public class JwtUtil {
     private String jwtSecret;
 
     public String getUsernameFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
+        String cleanToken = extractToken(token);
+        return getClaimFromToken(cleanToken, Claims::getSubject);
     }
 
     public String getRoleFromToken(String token) {
-        Claims claims = getAllClaimsFromToken(token);
+        String cleanToken = extractToken(token);
+        Claims claims = getAllClaimsFromToken(cleanToken);
         return claims.get("role", String.class);
+    }
+
+    public UUID getUserIdFromToken(String token) {
+        String cleanToken = extractToken(token);
+        Claims claims = getAllClaimsFromToken(cleanToken);
+        String idString = claims.get("id", String.class);
+        return UUID.fromString(idString);
+    }
+
+    private String extractToken(String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7).trim();
+        }
+        return authHeader;
     }
 
     public Date getExpirationDateFromToken(String token) {

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.dymohlo.music_content_service.dto.request.NewMusicFileRequest;
 import ua.dymohlo.music_content_service.dto.request.UpdateMusicFileDataRequest;
+import ua.dymohlo.music_content_service.dto.security.UserAccessInfo;
 import ua.dymohlo.music_content_service.entity.MusicFile;
 import ua.dymohlo.music_content_service.excepton.MusicFileAlreadyExistsException;
 import ua.dymohlo.music_content_service.excepton.MusicFileNotFoundException;
@@ -33,18 +34,56 @@ public class MusicFileService {
         );
     }
 
-    public MusicFile findMusicFileByName(String fileName) {
-        return musicFileRepository.findByMusicFileNameIgnoreCase(fileName)
+    public MusicFile findMusicFileByName(String fileName, UserAccessInfo userAccess) {
+        MusicFile musicFile = musicFileRepository.findByMusicFileNameIgnoreCase(fileName)
                 .orElseThrow(() -> new MusicFileNotFoundException("File with name not found"));
+
+        if (!hasAccessToFile(musicFile, userAccess)) {
+            log.warn("User {} with subscription {} tried to access file with subscription type {}",
+                    userAccess.getUserId(),
+                    userAccess.getUserSubscription(),
+                    musicFile.getSubscriptionType());
+            throw new MusicFileNotFoundException("File not available for your subscription");
+        }
+
+        return musicFile;
     }
 
-    public Page<MusicFile> findAllMusicFiles(Pageable pageable) {
-        return musicFileRepository.findAll(pageable);
+    public Page<MusicFile> findAllMusicFiles(UserAccessInfo userAccess, Pageable pageable) {
+
+        if (userAccess.getAllowedSubscriptionTypes() == null ||
+                userAccess.getAllowedSubscriptionTypes().isEmpty()) {
+            log.debug("User {} has no allowed subscription types", userAccess.getUserId());
+            return Page.empty(pageable);
+        }
+
+        Page<MusicFile> musicFiles = musicFileRepository.findBySubscriptionTypeIn(
+                userAccess.getAllowedSubscriptionTypes(),
+                pageable
+        );
+
+        log.debug("Found {} music files for user {} with subscription {}",
+                musicFiles.getTotalElements(),
+                userAccess.getUserId(),
+                userAccess.getUserSubscription());
+
+        return musicFiles;
     }
 
-    public Page<MusicFile> findMusicFilesBySubscription(String subscriptionName, Pageable pageable) {
+    public Page<MusicFile> findMusicFilesBySubscription(String subscriptionName,
+                                                        UserAccessInfo userAccess,
+                                                        Pageable pageable) {
+
+        if (!userAccess.getAllowedSubscriptionTypes().contains(subscriptionName)) {
+            log.warn("User {} with subscription {} tried to access subscription type {}",
+                    userAccess.getUserId(),
+                    userAccess.getUserSubscription(),
+                    subscriptionName);
+            return Page.empty(pageable);
+        }
+
         return musicFileRepository.findMusicFileBySubscriptionTypeIgnoreCase(subscriptionName, pageable)
-                .orElse(Page.empty());
+                .orElse(Page.empty(pageable));
     }
 
     public MusicFile updateMusicFileData(UpdateMusicFileDataRequest request) {
@@ -61,7 +100,12 @@ public class MusicFileService {
     public void deleteMusicFileByName(String musicFileName) {
         musicFileRepository.delete(musicFileRepository.findByMusicFileNameIgnoreCase(musicFileName)
                 .orElseThrow(() -> new MusicFileNotFoundException("File with name not found")));
-
     }
 
+    private boolean hasAccessToFile(MusicFile musicFile, UserAccessInfo userAccess) {
+        if (userAccess.getAllowedSubscriptionTypes() == null) {
+            return false;
+        }
+        return userAccess.getAllowedSubscriptionTypes().contains(musicFile.getSubscriptionType());
+    }
 }

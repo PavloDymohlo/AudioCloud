@@ -35,6 +35,18 @@ spring:
             - Path=/api/v1/users/**
           filters:
             - StripPrefix=0
+        - id: subscription-service
+          uri: lb://subscription-service
+          predicates:
+            - Path=/api/v1/subscriptions/**
+          filters:
+            - StripPrefix=0
+        - id: music-content-service
+          uri: lb://music-content-service
+          predicates:
+            - Path=/api/v1/music-files/**
+          filters:
+            - StripPrefix=0
 
 user-service:
   name: user-service

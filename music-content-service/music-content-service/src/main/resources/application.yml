@@ -4,11 +4,13 @@ server:
 spring:
   application:
     name: music-content-service
+
   datasource:
     url: jdbc:postgresql://localhost:5432/AudioCloud
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,17 +19,33 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  cloud:
-    config:
-      enabled: false
-      uri: http://localhost:8888
-      name: music-content-service
-      profile: default
+
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
       enabled: true
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: music-content-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      database: 0
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
 eureka:
   client:
@@ -47,18 +65,31 @@ jwt:
 
 logging:
   level:
-    org.springframework.security: DEBUG
-    ua.dymohlo.musiccontentservice: DEBUG
-    org.springframework.cloud.netflix.eureka: INFO
-    com.netflix.eureka: INFO
-    com.netflix.discovery: INFO
-    org.springframework.web.multipart: DEBUG
+    root: ERROR
+    KAFKA_CONSUMER: INFO
+    ua.dymohlo.music_content_service: INFO
+    org.apache.kafka: INFO
+    org.springframework.kafka: INFO
+    kafka: INFO
+    org.springframework.cloud: INFO
+    com.netflix: INFO
+    org.springframework.web: ERROR
+    org.springframework.security: ERROR
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus,metrics
+        include: health,info,prometheus,metrics,refresh
   endpoint:
     health:
       show-details: always
+
+kafka:
+  topics:
+    user-subscriptions: user-subscriptions
+
+cache:
+  user-subscription:
+    key-prefix: "user:subscription:"
+    ttl-hours: 24

@@ -12,7 +12,9 @@ import ua.dymohlo.music_content_service.dto.request.NewMusicFileRequest;
 import ua.dymohlo.music_content_service.dto.request.UpdateMusicFileDataRequest;
 import ua.dymohlo.music_content_service.dto.response.MusicFileDataResponse;
 import ua.dymohlo.music_content_service.dto.response.MusicFileResponseFactory;
+import ua.dymohlo.music_content_service.dto.security.UserAccessInfo;
 import ua.dymohlo.music_content_service.entity.MusicFile;
+import ua.dymohlo.music_content_service.security.annotation.UserSubscription;
 import ua.dymohlo.music_content_service.service.MusicFileService;
 
 @RestController
@@ -30,24 +32,32 @@ public class MusicFileController {
     }
 
     @GetMapping("/{name}")
-    public MusicFileDataResponse findMusicFileByName(@PathVariable String name) {
-        MusicFile musicFile = musicFileService.findMusicFileByName(name);
+    public MusicFileDataResponse findMusicFileByName(
+            @PathVariable String name,
+            @UserSubscription UserAccessInfo userAccess) {
+
+        log.debug("Finding music file by name: {} for user: {}", name, userAccess.getUserId());
+        MusicFile musicFile = musicFileService.findMusicFileByName(name, userAccess);
         return musicFileResponseFactory.createMusicFileDataResponse(musicFile);
     }
 
     @GetMapping
     public Page<MusicFileDataResponse> findAllMusicFiles(
+            @UserSubscription UserAccessInfo userAccess,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "musicFileName") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirections
     ) {
+        log.debug("Finding all music files for user: {} with subscription: {}",
+                userAccess.getUserId(), userAccess.getUserSubscription());
+
         Sort sort = sortDirections.equalsIgnoreCase("desc") ?
                 Sort.by(sortBy).descending() :
                 Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<MusicFile> musicFiles = musicFileService.findAllMusicFiles(pageable);
+        Page<MusicFile> musicFiles = musicFileService.findAllMusicFiles(userAccess, pageable);
         return musicFiles.map(
                 musicFile -> new MusicFileDataResponse(
                         musicFile.getMusicFileName(),
@@ -59,17 +69,22 @@ public class MusicFileController {
     @GetMapping("/subscriptions/{subscription}")
     public Page<MusicFileDataResponse> findMusicFilesBySubscription(
             @PathVariable String subscription,
+            @UserSubscription UserAccessInfo userAccess,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "musicFileName") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirections
     ) {
+        log.debug("Finding music files by subscription: {} for user: {}",
+                subscription, userAccess.getUserId());
+
         Sort sort = sortDirections.equalsIgnoreCase("desc") ?
                 Sort.by(sortBy).descending() :
                 Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<MusicFile> musicFiles = musicFileService.findMusicFilesBySubscription(subscription, pageable);
+        Page<MusicFile> musicFiles = musicFileService.findMusicFilesBySubscription(
+                subscription, userAccess, pageable);
         return musicFiles.map(
                 musicFile -> new MusicFileDataResponse(
                         musicFile.getMusicFileName(),
