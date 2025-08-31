@@ -35,8 +35,7 @@ public class RegistrationSaga {
     @Value("${saga.internal-api-key}")
     private String internalApiKey;
 
-    public SagaState executeRegistration(RegisterRequest request) {
-        UUID userId = UUID.randomUUID();
+    public SagaState executeRegistration(RegisterRequest request, UUID userId) {
         String requestData = serializeRequest(request);
 
         SagaState sagaState = stateManager.createSaga(userId, request.getUserEmail(), requestData);
