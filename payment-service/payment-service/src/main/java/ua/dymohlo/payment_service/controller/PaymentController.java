@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.dymohlo.payment_service.dto.request.PaymentRequest;
+import ua.dymohlo.payment_service.dto.request.RefundRequest;
 import ua.dymohlo.payment_service.dto.response.PaymentResponse;
 import ua.dymohlo.payment_service.service.PaymentService;
 
@@ -24,6 +25,16 @@ public class PaymentController {
         log.info("Processing payment request: type={}, generally={}", paymentType, request);
 
         PaymentResponse response = paymentService.processPayment(request, paymentType);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refund")
+    public ResponseEntity<PaymentResponse> refundPayment(@RequestBody RefundRequest request) {
+        log.info("Processing refund request: transactionId={}, userEmail={}, reason={}",
+                request.getTransactionId(), request.getUserEmail(), request.getReason());
+
+        PaymentResponse response = paymentService.processRefund(request);
 
         return ResponseEntity.ok(response);
     }

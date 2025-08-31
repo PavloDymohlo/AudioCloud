@@ -10,12 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ua.dymohlo.user_service.dto.request.CreateUserRequest;
+import ua.dymohlo.user_service.dto.request.CreateUserSagaRequest;
 import ua.dymohlo.user_service.dto.request.UserProfileDataRequest;
 import ua.dymohlo.user_service.dto.response.UserResponse;
 import ua.dymohlo.user_service.entity.User;
 import ua.dymohlo.user_service.models.AutoSubscriptionStatus;
 import ua.dymohlo.user_service.security.util.JwtUtil;
 import ua.dymohlo.user_service.service.UserService;
+
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -120,5 +123,27 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable String email) {
         userService.deleteUser(email);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/saga")
+    public UserResponse createUserFromSaga(@RequestBody CreateUserSagaRequest request) {
+        log.info("Creating user from SAGA: userId={}, email={}", request.getUserId(), request.getUserEmail());
+
+        User user = userService.createUserFromSaga(request);
+
+        return UserResponse.builder()
+                .userEmail(user.getUserEmail())
+                .bankCardNumber(user.getBankCardNumber())
+                .subscription(user.getSubscription())
+                .autoSubscriptionStatus(user.getAutoSubscription())
+                .subscriptionExpiresAt(user.getSubscriptionExpiresAt())
+                .build();
+    }
+
+    @DeleteMapping("/saga/{userId}")
+    public ResponseEntity<String> deleteUserFromSaga(@PathVariable UUID userId) {
+        log.info("Deleting user from SAGA compensation: userId={}", userId);
+        userService.deleteUserFromSaga(userId);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

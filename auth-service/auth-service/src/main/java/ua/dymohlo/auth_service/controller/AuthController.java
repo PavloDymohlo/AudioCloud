@@ -23,7 +23,6 @@ public class AuthController {
     private final AuthService authService;
     private final JwtTokenService jwtTokenService;
 
-
     @PostMapping("/register")
     public AuthResponse registerUser(@Valid @RequestBody RegisterRequest request) {
         RegisteredUserInfoResponse response = authService.register(request);
@@ -33,8 +32,10 @@ public class AuthController {
                 .subscriptionName(response.getSubscriptionName())
                 .bankCardNumber(request.getBankCardNumber())
                 .bankCardNumberCVV(request.getBankCardNumberCVV())
-                .bankCardNumberExpired(request.getBankCardNumberExpired()).build();
+                .bankCardNumberExpired(request.getBankCardNumberExpired())
+                .build();
     }
+
 
     @PostMapping("/login")
     public String getToken(@Valid @RequestBody LoginInRequest request) {

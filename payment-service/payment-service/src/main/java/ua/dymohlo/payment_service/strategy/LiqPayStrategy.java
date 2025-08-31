@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ua.dymohlo.payment_service.client.LiqPayClient;
-import ua.dymohlo.payment_service.dto.request.NotificationRequest;
 import ua.dymohlo.payment_service.dto.request.PaymentRequest;
+import ua.dymohlo.payment_service.dto.request.RefundRequest;
 import ua.dymohlo.payment_service.dto.response.PaymentResponse;
 import ua.dymohlo.payment_service.service.PaymentNotificationProducer;
 
@@ -56,17 +56,6 @@ public class LiqPayStrategy implements PaymentStrategy {
             boolean isSuccess = errorCode == null || errorCode.trim().isEmpty();
 
             if (isSuccess) {
-                NotificationRequest notification = NotificationRequest.builder()
-                        .success(true)
-                        .transactionId(transactionId)
-                        .message("Payment successful")
-                        .paymentData(liqPayResponse.toString())
-                        .recipient(request.getUserEmail())
-                        .notificationType("email")
-                        .build();
-
-                paymentNotificationProducer.sendPaymentNotification(notification);
-
                 return PaymentResponse.builder()
                         .success(true)
                         .transactionId(transactionId)
@@ -88,6 +77,55 @@ public class LiqPayStrategy implements PaymentStrategy {
             return PaymentResponse.builder()
                     .success(false)
                     .message("API call failed: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    public PaymentResponse processRefund(RefundRequest request) {
+        log.info("Processing refund for transaction: {}", request.getTransactionId());
+
+        if (request.getTransactionId() == null || request.getTransactionId().trim().isEmpty()) {
+            return PaymentResponse.builder()
+                    .success(false)
+                    .message("Transaction ID is required for refund")
+                    .build();
+        }
+
+        try {
+            Map<String, Object> refundParams = createRefundParams(request);
+            Map<String, Object> liqPayResponse = liqPayClient.processPayment(refundParams);
+
+            String status = getString(liqPayResponse, "status");
+            String errorCode = getString(liqPayResponse, "err_code");
+            String errorDescription = getString(liqPayResponse, "err_description");
+
+            log.info("LiqPay refund result: status={}, err_code={}", status, errorCode);
+
+            boolean isSuccess = errorCode == null || errorCode.trim().isEmpty();
+
+            if (isSuccess) {
+                return PaymentResponse.builder()
+                        .success(true)
+                        .transactionId(request.getTransactionId())
+                        .message("Refund processed successfully")
+                        .paymentData(liqPayResponse.toString())
+                        .build();
+            } else {
+                return PaymentResponse.builder()
+                        .success(false)
+                        .transactionId(request.getTransactionId())
+                        .message("Refund failed: " + (errorDescription != null ? errorDescription : errorCode))
+                        .paymentData(liqPayResponse.toString())
+                        .build();
+            }
+
+        } catch (Exception e) {
+            log.error("Error processing refund", e);
+            return PaymentResponse.builder()
+                    .success(false)
+                    .transactionId(request.getTransactionId())
+                    .message("Refund API call failed: " + e.getMessage())
                     .build();
         }
     }
@@ -114,6 +152,14 @@ public class LiqPayStrategy implements PaymentStrategy {
         if (request.getUserEmail() != null) {
             params.put("sender_email", request.getUserEmail());
         }
+
+        return params;
+    }
+
+    private Map<String, Object> createRefundParams(RefundRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("action", "refund");
+        params.put("order_id", request.getTransactionId());
 
         return params;
     }

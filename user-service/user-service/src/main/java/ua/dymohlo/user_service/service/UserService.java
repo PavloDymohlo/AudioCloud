@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ua.dymohlo.user_service.client.PaymentClient;
 import ua.dymohlo.user_service.client.SubscriptionClient;
 import ua.dymohlo.user_service.dto.request.CreateUserRequest;
+import ua.dymohlo.user_service.dto.request.CreateUserSagaRequest;
 import ua.dymohlo.user_service.dto.request.UserProfileDataRequest;
 import ua.dymohlo.user_service.dto.response.SubscriptionResponse;
 import ua.dymohlo.user_service.entity.User;
@@ -18,6 +19,7 @@ import ua.dymohlo.user_service.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -125,5 +127,36 @@ public class UserService {
         userRepository.delete(user);
 
         userDeletedPublisher.publishUserDeletedEvent(email);
+    }
+    public User createUserFromSaga(CreateUserSagaRequest request) {
+        User newUser = User.builder()
+                .id(request.getUserId())
+                .autoSubscription(DEFAULT_AUTO_SUBSCRIPTION_STATUS)
+                .subscription(request.getSubscriptionName())
+                .userEmail(request.getUserEmail())
+                .userRole(request.getUserRole())
+                .bankCardNumber(request.getBankCardNumber())
+                .bankCardCvv(request.getBankCardNumberCVV())
+                .bankCardExpired(request.getBankCardNumberExpired())
+                .subscriptionExpiresAt(LocalDateTime.now())
+                .build();
+
+        User savedUser = userRepository.save(newUser);
+
+        subscriptionPublisher.publishUserSubscriptionEvent(
+                savedUser.getId(),
+                savedUser.getSubscription()
+        );
+
+        log.info("User created from SAGA: userId={}, email={}", savedUser.getId(), savedUser.getUserEmail());
+        return savedUser;
+    }
+
+    public void deleteUserFromSaga(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found for SAGA compensation: " + userId));
+
+        userRepository.delete(user);
+        log.info("User deleted from SAGA compensation: userId={}, email={}", userId, user.getUserEmail());
     }
 }

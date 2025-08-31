@@ -60,3 +60,6 @@ kafka:
   topics:
     user-subscriptions: user-subscriptions
     user-deleted: user-deleted
+
+saga:
+  internal-api-key: "saga-internal-key-9f2e8d7c6b5a4918273645ebf0c1a2d3e4f5g6h7i8j9k0l1m2n3o4p5q6r7s8t9u0v1w2x3y4z5"

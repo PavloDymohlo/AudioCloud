@@ -121,6 +121,7 @@ public class PaymentClient {
                     .success(success)
                     .message(message)
                     .subscriptionName(subscriptionName)
+                    .transactionId(transactionId)
                     .build();
 
         } catch (Exception e) {

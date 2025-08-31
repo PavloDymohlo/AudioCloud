@@ -1,4 +1,4 @@
-package ua.dymohlo.auth_service.dto.response;
+package ua.dymohlo.payment_service.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentResultResponse {
-    private boolean success;
-    private String message;
-    private String subscriptionName;
+public class RefundRequest {
     private String transactionId;
+    private String userEmail;
+    private String reason;
 }

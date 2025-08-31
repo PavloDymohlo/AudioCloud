@@ -26,6 +26,9 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
         spring.json.type.mapping: ua.dymohlo.user_service.dto.event.UserDeletedEvent:ua.dymohlo.auth_service.dto.event.UserDeletedEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 eureka:
   client:
@@ -60,3 +63,6 @@ payment:
     base-path: "/api/v1"
     process-endpoint: "/payment"
   default-provider: "liqpay"
+
+saga:
+  internal-api-key: "saga-internal-key-9f2e8d7c6b5a4918273645ebf0c1a2d3e4f5g6h7i8j9k0l1m2n3o4p5q6r7s8t9u0v1w2x3y4z5"
