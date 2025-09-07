@@ -1,9 +1,9 @@
 server:
-  port: 8094
+  port: 8081
 
 spring:
   application:
-    name: user-service
+    name: user-service-2
   datasource:
     url: jdbc:postgresql://localhost:5432/AudioCloud
     username: postgres

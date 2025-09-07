@@ -15,4 +15,5 @@ public class AuthResponse {
     private String bankCardNumber;
     private String bankCardNumberCVV;
     private String bankCardNumberExpired;
+    private String targetUserService;  // this field is required for the test in Postman
 }
