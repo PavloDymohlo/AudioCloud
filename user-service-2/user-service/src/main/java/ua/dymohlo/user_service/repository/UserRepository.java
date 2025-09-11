@@ -15,12 +15,12 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findUserByUserEmail(String userEmail);
     Optional<Page<User>> findUserBySubscription(String subscription, Pageable pageable);
-    @Query("SELECT u FROM User u WHERE u.subscriptionExpiresAt < :time " +
-            "AND u.userRole NOT IN :excludedRoles " +
-            "AND u.subscription NOT IN :excludedSubscriptions")
-    List<User> findExpiredUsers(
-            @Param("time") LocalDateTime time,
-            @Param("excludedRoles") List<String> excludedRoles,
-            @Param("excludedSubscriptions") List<String> excludedSubscriptions
-    );
+//    @Query("SELECT u FROM User u WHERE u.subscriptionExpiresAt < :time " +
+//            "AND u.userRole NOT IN :excludedRoles " +
+//            "AND u.subscription NOT IN :excludedSubscriptions")
+//    List<User> findExpiredUsers(
+//            @Param("time") LocalDateTime time,
+//            @Param("excludedRoles") List<String> excludedRoles,
+//            @Param("excludedSubscriptions") List<String> excludedSubscriptions
+//    );
 }

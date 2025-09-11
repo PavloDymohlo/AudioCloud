@@ -87,6 +87,8 @@ public class RegistrationSaga {
 
     private boolean createUser(UUID userId, RegisterRequest request, String subscriptionName) {
         try {
+            WebClient directWebClient = WebClient.builder().build();
+
             CreateUserSagaRequest userRequest = CreateUserSagaRequest.builder()
                     .userId(userId)
                     .userEmail(request.getUserEmail())
@@ -97,8 +99,8 @@ public class RegistrationSaga {
                     .bankCardNumberExpired(request.getBankCardNumberExpired())
                     .build();
 
-            String response = webClient.post()
-                    .uri("lb://user-service/api/v1/users/saga")
+            String response = directWebClient.post()  // ← ЗМІНИТИ ТУТ
+                    .uri("http://localhost:8080/api/v1/users/saga")
                     .header("Content-Type", "application/json")
                     .header("X-Internal-API-Key", internalApiKey)
                     .bodyValue(userRequest)

@@ -9,6 +9,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import ua.dymohlo.api_gateway.config.LoadBalancerConfig;
 import ua.dymohlo.api_gateway.service.LoadBalancerToggleService;
 
 import java.net.URI;
@@ -19,19 +20,21 @@ import java.net.URI;
 public class UserServiceLoadBalancerFilter implements GlobalFilter, Ordered {
 
     private final LoadBalancerToggleService toggleService;
+    private final LoadBalancerConfig config;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().value();
 
-        // Перевіряємо чи це запит до user-service
-        if (isUserServiceRequest(path)) {
+        log.info("Processing request: {} {}", request.getMethod(), path);
+
+        if (isTargetRequest(path)) {
             String targetService = toggleService.getNextUserService();
+            String servicePort = toggleService.getServicePort(targetService);
 
-            log.info("Load balancing user service request: {} -> {}", path, targetService);
+            log.info("Load balancing request: {} -> {} (port: {})", path, targetService, servicePort);
 
-            // Модифікуємо URI для перенаправлення на обраний сервіс
             URI newUri = URI.create("lb://" + targetService);
 
             ServerHttpRequest modifiedRequest = request.mutate()
@@ -43,8 +46,14 @@ public class UserServiceLoadBalancerFilter implements GlobalFilter, Ordered {
                     .request(modifiedRequest)
                     .build();
 
-            // Встановлюємо новий URI в атрибути exchange
-            modifiedExchange.getAttributes().put("org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR", newUri);
+            modifiedExchange.getAttributes().put(
+                    "org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR",
+                    newUri
+            );
+
+            String serviceInfo = targetService + " (port: " + servicePort + ")";
+            exchange.getResponse().getHeaders().add("X-Routed-To-Service", serviceInfo);
+            log.info("Added response header: X-Routed-To-Service = {}", serviceInfo);
 
             return chain.filter(modifiedExchange);
         }
@@ -52,12 +61,22 @@ public class UserServiceLoadBalancerFilter implements GlobalFilter, Ordered {
         return chain.filter(exchange);
     }
 
-    private boolean isUserServiceRequest(String path) {
-        return path.startsWith("/api/v1/users") && !path.contains("/saga");
+    private boolean isTargetRequest(String path) {
+        boolean isEnabledPath = config.getEnabledPaths().stream()
+                .anyMatch(path::startsWith);
+
+        boolean isExcludedPath = config.getExcludedPaths().stream()
+                .anyMatch(path::contains);
+
+        log.info("Checking path: {}, isEnabled: {}, isExcluded: {}",
+                path, isEnabledPath, isExcludedPath);
+
+        return isEnabledPath && !isExcludedPath;
     }
 
     @Override
     public int getOrder() {
-        return -1; // Виконується перед іншими фільтрами
+        return -1;
     }
 }
+
