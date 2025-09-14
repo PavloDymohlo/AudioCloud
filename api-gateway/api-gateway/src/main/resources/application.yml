@@ -5,7 +5,7 @@ spring:
   application:
     name: api-gateway
   config:
-    import: optional:configserver:http://localhost:8080
+    import: optional:configserver:http://localhost:8888
   cloud:
     config:
       uri: http://localhost:8888
@@ -96,16 +96,16 @@ load-balancer:
       port: "8081"
       weight: 1
       enabled: true
-
   enabled-paths:
     - "/api/v1/users"
   excluded-paths:
     - "/saga"
-    -
-    # Додати в кінець файлу
+
+# SpringDoc конфігурація для API Gateway
 springdoc:
   api-docs:
     path: /v3/api-docs
+    enabled: true
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
@@ -113,7 +113,22 @@ springdoc:
     tags-sorter: alpha
     display-request-duration: true
     disable-swagger-default-url: true
+    # Конфігурація для агрегації документації з мікросервісів
+    urls:
+      - name: Auth Service
+        url: /api/v1/auth/v3/api-docs
+      - name: User Service
+        url: /api/v1/users/v3/api-docs
+      - name: Subscription Service
+        url: /api/v1/subscriptions/v3/api-docs
+      - name: Music Content Service
+        url: /api/v1/music-files/v3/api-docs
+      - name: Payment Service
+        url: /api/v1/payment/v3/api-docs
+      - name: Notification Service
+        url: /api/v1/notifications/v3/api-docs
 
+# Власні налаштування Swagger
 swagger:
   info:
     title: AudioCloud API Gateway
