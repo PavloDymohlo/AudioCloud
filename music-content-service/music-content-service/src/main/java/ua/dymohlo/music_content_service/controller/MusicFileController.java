@@ -58,12 +58,8 @@ public class MusicFileController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<MusicFile> musicFiles = musicFileService.findAllMusicFiles(userAccess, pageable);
-        return musicFiles.map(
-                musicFile -> new MusicFileDataResponse(
-                        musicFile.getMusicFileName(),
-                        musicFile.getSubscriptionType()
-                )
-        );
+
+        return musicFiles.map(musicFileResponseFactory::createMusicFileDataResponse);
     }
 
     @GetMapping("/subscriptions/{subscription}")
@@ -85,12 +81,8 @@ public class MusicFileController {
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<MusicFile> musicFiles = musicFileService.findMusicFilesBySubscription(
                 subscription, userAccess, pageable);
-        return musicFiles.map(
-                musicFile -> new MusicFileDataResponse(
-                        musicFile.getMusicFileName(),
-                        musicFile.getSubscriptionType()
-                )
-        );
+
+        return musicFiles.map(musicFileResponseFactory::createMusicFileDataResponse);
     }
 
     @PutMapping

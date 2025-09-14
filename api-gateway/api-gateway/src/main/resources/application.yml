@@ -29,14 +29,8 @@ spring:
             - Path=/api/v1/auth/**
           filters:
             - StripPrefix=0
-        - id: user-service-dynamic
+        - id: user-service-load-balanced
           uri: lb://user-service
-          predicates:
-            - Path=/api/v1/users/**
-          filters:
-            - StripPrefix=0
-        - id: user-service-2-dynamic
-          uri: lb://user-service-2
           predicates:
             - Path=/api/v1/users/**
           filters:
@@ -51,6 +45,12 @@ spring:
           uri: lb://music-content-service
           predicates:
             - Path=/api/v1/music-files/**
+          filters:
+            - StripPrefix=0
+        - id: music-streaming-service
+          uri: lb://music-content-service
+          predicates:
+            - Path=/api/v1/stream/**
           filters:
             - StripPrefix=0
 
@@ -99,6 +99,5 @@ load-balancer:
 
   enabled-paths:
     - "/api/v1/users"
-    - "/api/v1/auth"
   excluded-paths:
     - "/saga"

@@ -9,6 +9,7 @@ import ua.dymohlo.music_content_service.dto.request.NewMusicFileRequest;
 import ua.dymohlo.music_content_service.dto.request.UpdateMusicFileDataRequest;
 import ua.dymohlo.music_content_service.dto.security.UserAccessInfo;
 import ua.dymohlo.music_content_service.entity.MusicFile;
+import ua.dymohlo.music_content_service.excepton.MusicFileAccessDeniedException;
 import ua.dymohlo.music_content_service.excepton.MusicFileAlreadyExistsException;
 import ua.dymohlo.music_content_service.excepton.MusicFileNotFoundException;
 import ua.dymohlo.music_content_service.repository.MusicFileRepository;
@@ -43,7 +44,7 @@ public class MusicFileService {
                     userAccess.getUserId(),
                     userAccess.getUserSubscription(),
                     musicFile.getSubscriptionType());
-            throw new MusicFileNotFoundException("File not available for your subscription");
+            throw new MusicFileAccessDeniedException("File not available for your subscription");
         }
 
         return musicFile;

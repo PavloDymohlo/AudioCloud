@@ -26,14 +26,15 @@ public class UserServiceLoadBalancerFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().value();
+        String method = request.getMethod().toString();
 
-        log.info("Processing request: {} {}", request.getMethod(), path);
+        log.info("Processing request: {} {}", method, path);
 
         if (isTargetRequest(path)) {
             String targetService = toggleService.getNextUserService();
             String servicePort = toggleService.getServicePort(targetService);
 
-            log.info("Load balancing request: {} -> {} (port: {})", path, targetService, servicePort);
+            log.info("Load balancing request: {} {} -> {} (port: {})", method, path, targetService, servicePort);
 
             URI newUri = URI.create("lb://" + targetService);
 
@@ -58,20 +59,30 @@ public class UserServiceLoadBalancerFilter implements GlobalFilter, Ordered {
             return chain.filter(modifiedExchange);
         }
 
+        log.debug("Request {} {} - не потребує load balancing", method, path);
         return chain.filter(exchange);
     }
 
     private boolean isTargetRequest(String path) {
         boolean isEnabledPath = config.getEnabledPaths().stream()
-                .anyMatch(path::startsWith);
+                .anyMatch(enabledPath -> {
+                    boolean matches = path.startsWith(enabledPath);
+                    log.debug("Checking path '{}' against enabled path '{}': {}", path, enabledPath, matches);
+                    return matches;
+                });
 
         boolean isExcludedPath = config.getExcludedPaths().stream()
-                .anyMatch(path::contains);
+                .anyMatch(excludedPath -> {
+                    boolean matches = path.contains(excludedPath);
+                    log.debug("Checking path '{}' against excluded path '{}': {}", path, excludedPath, matches);
+                    return matches;
+                });
 
-        log.info("Checking path: {}, isEnabled: {}, isExcluded: {}",
-                path, isEnabledPath, isExcludedPath);
+        boolean shouldLoadBalance = isEnabledPath && !isExcludedPath;
+        log.info("Path: {}, isEnabled: {}, isExcluded: {}, shouldLoadBalance: {}",
+                path, isEnabledPath, isExcludedPath, shouldLoadBalance);
 
-        return isEnabledPath && !isExcludedPath;
+        return shouldLoadBalance;
     }
 
     @Override
@@ -79,4 +90,3 @@ public class UserServiceLoadBalancerFilter implements GlobalFilter, Ordered {
         return -1;
     }
 }
-

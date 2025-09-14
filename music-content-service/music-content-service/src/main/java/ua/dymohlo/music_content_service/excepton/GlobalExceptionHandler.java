@@ -2,6 +2,7 @@ package ua.dymohlo.music_content_service.excepton;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,7 +17,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleSubscriptionAlreadyExists(MusicFileAlreadyExistsException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
-
+    @ExceptionHandler(MusicFileAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ResponseEntity<String> handleMusicFileAccessDenied(MusicFileAccessDeniedException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
     @ExceptionHandler(MusicFileNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
