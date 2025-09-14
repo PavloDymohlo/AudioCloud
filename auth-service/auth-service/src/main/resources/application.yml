@@ -75,3 +75,34 @@ payment:
 
 saga:
   internal-api-key: "saga-internal-key-9f2e8d7c6b5a4918273645ebf0c1a2d3e4f5g6h7i8j9k0l1m2n3o4p5q6r7s8t9u0v1w2x3y4z5"
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    disable-swagger-default-url: true
+
+swagger:
+  info:
+    title: Authentication Service API
+    description: Authentication and authorization service for AudioCloud microservices. Handles user registration, login, JWT token management, and SAGA-based user creation with payment processing.
+    version: 1.0.0
+    contact:
+      name: Dymohlo Team
+      email: support@audiocloud.ua
+      url: https://audiocloud.ua
+    license:
+      name: MIT License
+      url: https://opensource.org/licenses/MIT
+  server:
+    url: http://localhost:8082
+    description: Development Authentication Service Server
+  security:
+    scheme-name: Bearer Authentication
+    description: JWT token required for protected endpoints

@@ -1,4 +1,4 @@
-CREATE TABLE auth_service.saga_states (
+CREATE TABLE IF NOT EXISTS auth_service.saga_states (
     saga_id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     user_email VARCHAR(255) NOT NULL,
