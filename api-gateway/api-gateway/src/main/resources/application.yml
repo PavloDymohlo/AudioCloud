@@ -101,3 +101,34 @@ load-balancer:
     - "/api/v1/users"
   excluded-paths:
     - "/saga"
+    -
+    # Додати в кінець файлу
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    disable-swagger-default-url: true
+
+swagger:
+  info:
+    title: AudioCloud API Gateway
+    description: Central API Gateway for AudioCloud microservices architecture. Routes requests to Auth, User, Subscription, Payment, Music Content, and Notification services.
+    version: 1.0.0
+    contact:
+      name: Dymohlo Team
+      email: support@audiocloud.ua
+      url: https://audiocloud.ua
+    license:
+      name: MIT License
+      url: https://opensource.org/licenses/MIT
+  server:
+    url: http://localhost:8080
+    description: Development API Gateway Server
+  security:
+    scheme-name: Bearer Authentication
+    description: JWT token obtained from /api/v1/auth/login
