@@ -101,7 +101,6 @@ load-balancer:
   excluded-paths:
     - "/saga"
 
-# SpringDoc конфігурація для API Gateway
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -113,22 +112,26 @@ springdoc:
     tags-sorter: alpha
     display-request-duration: true
     disable-swagger-default-url: true
-    # Конфігурація для агрегації документації з мікросервісів
     urls:
+      - name: API Gateway
+        url: /v3/api-docs
+        display-name: API Gateway
       - name: Auth Service
-        url: /api/v1/auth/v3/api-docs
+        url: http://localhost:8083/v3/api-docs
+        display-name: Authentication Service
       - name: User Service
-        url: /api/v1/users/v3/api-docs
+        url: http://localhost:8084/v3/api-docs
+        display-name: User Management Service
+      - name: User Service 2
+        url: http://localhost:8081/v3/api-docs
+        display-name: User Management Service (Instance 2)
       - name: Subscription Service
-        url: /api/v1/subscriptions/v3/api-docs
+        url: http://localhost:8085/v3/api-docs
+        display-name: Subscription Management
       - name: Music Content Service
-        url: /api/v1/music-files/v3/api-docs
-      - name: Payment Service
-        url: /api/v1/payment/v3/api-docs
-      - name: Notification Service
-        url: /api/v1/notifications/v3/api-docs
+        url: http://localhost:8086/v3/api-docs
+        display-name: Music Content & Streaming
 
-# Власні налаштування Swagger
 swagger:
   info:
     title: AudioCloud API Gateway
