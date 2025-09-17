@@ -1,5 +1,9 @@
 package ua.dymohlo.music_content_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,17 +25,38 @@ import ua.dymohlo.music_content_service.service.MusicFileService;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/music-files")
+@Tag(name = "Music Files", description = "Music file management and access operations")
 public class MusicFileController {
     private final MusicFileService musicFileService;
     private final MusicFileResponseFactory musicFileResponseFactory;
 
     @PostMapping()
+    @Operation(
+            summary = "Add new music file",
+            description = "Adds a new music file to the system with subscription-based access control. Admin role required."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Music file added successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data or file already exists"),
+            @ApiResponse(responseCode = "403", description = "Access denied - Admin role required"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public MusicFileDataResponse addNewMusicFile(@RequestBody NewMusicFileRequest request) {
         MusicFile musicFile = musicFileService.addNewMusicFile(request);
         return musicFileResponseFactory.createMusicFileDataResponse(musicFile);
     }
 
     @GetMapping("/{name}")
+    @Operation(
+            summary = "Find music file by name",
+            description = "Retrieves a specific music file by name with subscription access validation"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Music file found and accessible"),
+            @ApiResponse(responseCode = "403", description = "File not available for user's subscription"),
+            @ApiResponse(responseCode = "404", description = "Music file not found"),
+            @ApiResponse(responseCode = "401", description = "Authentication required")
+    })
     public MusicFileDataResponse findMusicFileByName(
             @PathVariable String name,
             @UserSubscription UserAccessInfo userAccess) {
@@ -42,6 +67,15 @@ public class MusicFileController {
     }
 
     @GetMapping
+    @Operation(
+            summary = "Get all accessible music files",
+            description = "Retrieves paginated list of music files based on user's subscription level"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Music files retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public Page<MusicFileDataResponse> findAllMusicFiles(
             @UserSubscription UserAccessInfo userAccess,
             @RequestParam(defaultValue = "0") int page,
@@ -63,6 +97,15 @@ public class MusicFileController {
     }
 
     @GetMapping("/subscriptions/{subscription}")
+    @Operation(
+            summary = "Find music files by subscription type",
+            description = "Retrieves music files filtered by specific subscription type with access validation"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Music files retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied for requested subscription type"),
+            @ApiResponse(responseCode = "401", description = "Authentication required")
+    })
     public Page<MusicFileDataResponse> findMusicFilesBySubscription(
             @PathVariable String subscription,
             @UserSubscription UserAccessInfo userAccess,
@@ -86,12 +129,31 @@ public class MusicFileController {
     }
 
     @PutMapping
+    @Operation(
+            summary = "Update music file data",
+            description = "Updates existing music file information. Admin role required."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Music file updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "403", description = "Access denied - Admin role required"),
+            @ApiResponse(responseCode = "404", description = "Music file not found")
+    })
     public MusicFileDataResponse updateMusicFileData(@RequestBody UpdateMusicFileDataRequest request) {
         MusicFile musicFile = musicFileService.updateMusicFileData(request);
         return musicFileResponseFactory.createMusicFileDataResponse(musicFile);
     }
 
     @DeleteMapping("/{name}")
+    @Operation(
+            summary = "Delete music file",
+            description = "Deletes a music file from the system. Admin role required."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Music file deleted successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied - Admin role required"),
+            @ApiResponse(responseCode = "404", description = "Music file not found")
+    })
     public ResponseEntity<String> deleteMusicFileByName(@PathVariable String name) {
         musicFileService.deleteMusicFileByName(name);
         return ResponseEntity.noContent().build();

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ua.dymohlo.auth_service.client.PaymentClient;
 import ua.dymohlo.auth_service.dto.request.LoginInRequest;
 import ua.dymohlo.auth_service.dto.request.RegisterRequest;
 import ua.dymohlo.auth_service.dto.response.RegisteredUserInfoResponse;
@@ -22,23 +21,11 @@ import java.time.LocalDateTime;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final PaymentClient paymentClient;
     private final SagaOrchestrator sagaOrchestrator;
     private static final UserRole DEFAULT_USER_ROLE = UserRole.CLIENT;
 
     public RegisteredUserInfoResponse register(RegisterRequest request) {
         return sagaOrchestrator.register(request);
-    }
-
-    private User createUser(RegisterRequest request) {
-        User user = User.builder()
-                .userEmail(request.getUserEmail())
-                .userPassword(passwordEncoder.encode(request.getPassword()))
-                .userRole(DEFAULT_USER_ROLE)
-                .userCreatedAt(LocalDateTime.now())
-                .build();
-
-        return userRepository.save(user);
     }
 
     public User loginIn(LoginInRequest request) {

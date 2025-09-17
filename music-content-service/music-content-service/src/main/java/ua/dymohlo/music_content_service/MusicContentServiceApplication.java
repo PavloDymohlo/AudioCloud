@@ -14,14 +14,17 @@ import ua.dymohlo.music_content_service.config.SubscriptionConfigProperties;
 @RequiredArgsConstructor
 public class MusicContentServiceApplication {
     private final SubscriptionConfigProperties subscriptionConfig;
+
     public static void main(String[] args) {
         SpringApplication.run(MusicContentServiceApplication.class, args);
     }
+
     @PostConstruct
     public void logConfig() {
         log.info("=== CONFIG SERVICE DATA ===");
         log.info("Subscription rules: {}", subscriptionConfig.getAccessRules());
     }
+
     @EventListener(RefreshScopeRefreshedEvent.class)
     public void onRefresh() {
         log.info("=== REFRESHED CONFIG ===");

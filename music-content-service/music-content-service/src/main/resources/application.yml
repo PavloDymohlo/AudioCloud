@@ -98,3 +98,34 @@ cache:
   user-subscription:
     key-prefix: "user:subscription:"
     ttl-hours: 24
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    disable-swagger-default-url: true
+
+swagger:
+  info:
+    title: Music Content Service API
+    description: Music content storage, streaming and management service for AudioCloud microservices. Handles music file operations, streaming, and subscription-based access control.
+    version: 1.0.0
+    contact:
+      name: Dymohlo Team
+      email: support@audiocloud.ua
+      url: https://audiocloud.ua
+    license:
+      name: MIT License
+      url: https://opensource.org/licenses/MIT
+  server:
+    url: http://localhost:8085
+    description: Development Music Content Service Server
+  security:
+    scheme-name: Bearer Authentication
+    description: JWT token required for protected endpoints

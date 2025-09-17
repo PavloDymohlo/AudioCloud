@@ -17,13 +17,15 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+  flyway:
+    clean-disabled: false
+    validate-on-migrate: false
   kafka:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-
 
 eureka:
   client:
@@ -65,3 +67,34 @@ kafka:
 
 saga:
   internal-api-key: "saga-internal-key-9f2e8d7c6b5a4918273645ebf0c1a2d3e4f5g6h7i8j9k0l1m2n3o4p5q6r7s8t9u0v1w2x3y4z5"
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    disable-swagger-default-url: true
+
+swagger:
+  info:
+    title: User Management Service API
+    description: User management service for AudioCloud microservices. Handles user profiles, subscriptions, SAGA transactions, and automated subscription renewals with payment processing.
+    version: 1.0.0
+    contact:
+      name: Dymohlo Team
+      email: support@audiocloud.ua
+      url: https://audiocloud.ua
+    license:
+      name: MIT License
+      url: https://opensource.org/licenses/MIT
+  server:
+    url: http://localhost:8084
+    description: Development User Management Service Server
+  security:
+    scheme-name: Bearer Authentication
+    description: JWT token required for protected endpoints

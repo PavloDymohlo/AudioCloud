@@ -23,8 +23,8 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    validate-on-migrate: false
     locations: classpath:db/migration
-
 
 eureka:
   client:
@@ -58,3 +58,34 @@ management:
   endpoint:
     health:
       show-details: always
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    disable-swagger-default-url: true
+
+swagger:
+  info:
+    title: Subscription Management Service API
+    description: Subscription plans management service for AudioCloud microservices. Handles subscription creation, updates, retrieval, and deletion with different access levels and pricing tiers.
+    version: 1.0.0
+    contact:
+      name: Dymohlo Team
+      email: support@audiocloud.ua
+      url: https://audiocloud.ua
+    license:
+      name: MIT License
+      url: https://opensource.org/licenses/MIT
+  server:
+    url: http://localhost:8083
+    description: Development Subscription Management Service Server
+  security:
+    scheme-name: Bearer Authentication
+    description: JWT token required for protected endpoints

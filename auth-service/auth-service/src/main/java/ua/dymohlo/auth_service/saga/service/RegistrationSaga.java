@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import ua.dymohlo.auth_service.client.PaymentClient;
 import ua.dymohlo.auth_service.client.SubscriptionClient;
 import ua.dymohlo.auth_service.dto.request.RegisterRequest;
@@ -16,7 +17,6 @@ import ua.dymohlo.auth_service.saga.dto.NotificationRequest;
 import ua.dymohlo.auth_service.saga.entity.SagaState;
 import ua.dymohlo.auth_service.saga.models.SagaStatus;
 import ua.dymohlo.auth_service.saga.models.SagaStep;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.UUID;
 
@@ -99,7 +99,7 @@ public class RegistrationSaga {
                     .bankCardNumberExpired(request.getBankCardNumberExpired())
                     .build();
 
-            String response = directWebClient.post()  // ← ЗМІНИТИ ТУТ
+            String response = directWebClient.post()
                     .uri("http://localhost:8080/api/v1/users/saga")
                     .header("Content-Type", "application/json")
                     .header("X-Internal-API-Key", internalApiKey)

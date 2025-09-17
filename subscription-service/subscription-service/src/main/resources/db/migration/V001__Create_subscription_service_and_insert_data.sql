@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS subscription_service.subscription_plans (
     subscription_status VARCHAR(50) NOT NULL DEFAULT 'ENABLE'
 );
 
--- Вставка даних з вашої таблиці
 INSERT INTO subscription_service.subscription_plans
     (id, subscription_name, subscription_price, subscription_duration_time, subscription_status)
 VALUES

@@ -53,6 +53,33 @@ spring:
             - Path=/api/v1/stream/**
           filters:
             - StripPrefix=0
+        - id: auth-service-docs
+          uri: lb://auth-service
+          predicates:
+            - Path=/v3/api-docs/auth-service
+          filters:
+            - RewritePath=/v3/api-docs/auth-service, /v3/api-docs
+
+        - id: user-service-docs
+          uri: lb://user-service
+          predicates:
+            - Path=/v3/api-docs/user-service
+          filters:
+            - RewritePath=/v3/api-docs/user-service, /v3/api-docs
+
+        - id: subscription-service-docs
+          uri: lb://subscription-service
+          predicates:
+            - Path=/v3/api-docs/subscription-service
+          filters:
+            - RewritePath=/v3/api-docs/subscription-service, /v3/api-docs
+
+        - id: music-content-service-docs
+          uri: lb://music-content-service
+          predicates:
+            - Path=/v3/api-docs/music-content-service
+          filters:
+            - RewritePath=/v3/api-docs/music-content-service, /v3/api-docs
 
 user-service:
   name: user-service
@@ -117,19 +144,16 @@ springdoc:
         url: /v3/api-docs
         display-name: API Gateway
       - name: Auth Service
-        url: http://localhost:8083/v3/api-docs
+        url: http://localhost:8082/v3/api-docs
         display-name: Authentication Service
       - name: User Service
         url: http://localhost:8084/v3/api-docs
         display-name: User Management Service
-      - name: User Service 2
-        url: http://localhost:8081/v3/api-docs
-        display-name: User Management Service (Instance 2)
       - name: Subscription Service
-        url: http://localhost:8085/v3/api-docs
+        url: http://localhost:8083/v3/api-docs
         display-name: Subscription Management
       - name: Music Content Service
-        url: http://localhost:8086/v3/api-docs
+        url: http://localhost:8085/v3/api-docs
         display-name: Music Content & Streaming
 
 swagger:

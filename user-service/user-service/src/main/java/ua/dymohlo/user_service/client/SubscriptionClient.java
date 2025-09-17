@@ -39,7 +39,8 @@ public class SubscriptionClient {
             return webClient.get()
                     .uri(url)
                     .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<List<SubscriptionResponse>>() {})
+                    .bodyToMono(new ParameterizedTypeReference<List<SubscriptionResponse>>() {
+                    })
                     .block();
 
         } catch (Exception e) {

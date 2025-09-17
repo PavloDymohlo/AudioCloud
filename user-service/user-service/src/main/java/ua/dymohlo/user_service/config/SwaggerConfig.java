@@ -1,4 +1,4 @@
-package ua.dymohlo.api_gateway.config;
+package ua.dymohlo.user_service.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -54,7 +54,7 @@ public class SwaggerConfig {
     private String securityDescription;
 
     @Bean
-    public OpenAPI apiGatewayOpenAPI() {
+    public OpenAPI userServiceOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
                         .title(title)

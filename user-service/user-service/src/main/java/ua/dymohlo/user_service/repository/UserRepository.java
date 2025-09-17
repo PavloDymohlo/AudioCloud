@@ -14,7 +14,9 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findUserByUserEmail(String userEmail);
+
     Optional<Page<User>> findUserBySubscription(String subscription, Pageable pageable);
+
     @Query("SELECT u FROM User u WHERE u.subscriptionExpiresAt < :time " +
             "AND u.userRole NOT IN :excludedRoles " +
             "AND u.subscription NOT IN :excludedSubscriptions")

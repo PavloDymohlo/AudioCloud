@@ -23,11 +23,6 @@ public class JwtUtil {
         return getClaimFromToken(cleanToken, Claims::getSubject);
     }
 
-//    public String getRoleFromToken(String token) {
-//        Claims claims = getAllClaimsFromToken(token);
-//        return claims.get("role", String.class);
-//    }
-
     public String getRoleFromToken(String token) {
         String cleanToken = extractToken(token);
         Claims claims = getAllClaimsFromToken(cleanToken);

@@ -128,6 +128,7 @@ public class UserService {
 
         userDeletedPublisher.publishUserDeletedEvent(email);
     }
+
     public User createUserFromSaga(CreateUserSagaRequest request) {
         User newUser = User.builder()
                 .id(request.getUserId())
