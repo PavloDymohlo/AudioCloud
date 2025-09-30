@@ -2,22 +2,6 @@
 
 A microservices-based music streaming platform built with Spring Boot and Spring Cloud, implementing SAGA pattern for distributed transactions.
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Technologies](#technologies)
-- [Services](#services)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-- [API Documentation](#api-documentation)
-- [SAGA Pattern Implementation](#saga-pattern-implementation)
-- [Security](#security)
-- [Database Schema](#database-schema)
-- [Monitoring](#monitoring)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## 🎯 Overview
 
 AudioCloud is a distributed music streaming platform that demonstrates modern microservices architecture patterns. The system handles user registration, authentication, subscription management, payment processing, music content delivery, and notifications through loosely coupled services.
